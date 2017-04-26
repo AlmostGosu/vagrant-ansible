@@ -41,6 +41,22 @@ sudo grep -q "^[^#]*PasswordAuthentication" /etc/ssh/sshd_config \
 sudo systemctl restart sshd
 SCRIPT
 
+# ---- Script to install Ansible on Ansible VM ----
+
+$ansibleInstallScript = <<SCRIPT
+case $(hostname -s) in
+  ansible*) yum -y install epel-release && yum -y install ansible ;;
+  *) echo no ansible for splunk ;;
+esac
+SCRIPT
+
+#
+#if [[ $(hostname -s) =~ ansible.+ ]];
+#  yum -y install epel-release && yum -y install ansible
+#fi
+#elif [[ $(hostname -s) =~ splunk.+ ]];
+#then echo "splunk hosts don't need ansible installed'"
+
 ## ---- Vagrant configuration ----
 
 Vagrant.configure(2) do |config|
@@ -58,22 +74,25 @@ Vagrant.configure(2) do |config|
       machine.vm.hostname = name + DOMAIN
       machine.vm.network 'private_network', ip: ipaddr, netmask: NETMASK
 
-      config.vm.provision "shell", inline: "echo machine vm hostname is " + machine.vm.hostname
-      config.vm.provision "shell", inline: "echo vagrant name is " + name
-      config.vm.provision "shell", inline: "echo vagrant string ip is " + ipaddr
-
 # ---- Enable remote logon via ssh with passwords ----
 
       config.vm.provision "shell", inline: $authScript
 
-# ---- Set things by host ----
+# ---- Install Ansible on host ----
 
-      if name =~ /ansible/i
-        config.vm.provision "shell", inline: "echo ansible regex matched " + name
-      end
-      
-      if name=="splunk1"
-        config.vm.provision "shell", inline: "echo 2 " + name
+      config.vm.provision "shell", inline: $ansibleInstallScript
+
+
+
+
+# ---- Ansible server configuration ----
+      if name=="ansible"
+        config.vm.synced_folder "/Users/cgarrett/Documents/Dev/splunk-ansible" , "/vagrant/ansible", type: "rsync",
+        rsync__exclude: ".git/"
+        #config.vm.provision "shell",
+        #inline: "yum -y install epel-release"
+        #config.vm.provision "shell",
+        #inline: "yum -y install ansible"
       end
 
     end
