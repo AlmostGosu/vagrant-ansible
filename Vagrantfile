@@ -50,13 +50,6 @@ case $(hostname -s) in
 esac
 SCRIPT
 
-#
-#if [[ $(hostname -s) =~ ansible.+ ]];
-#  yum -y install epel-release && yum -y install ansible
-#fi
-#elif [[ $(hostname -s) =~ splunk.+ ]];
-#then echo "splunk hosts don't need ansible installed'"
-
 ## ---- Vagrant configuration ----
 
 Vagrant.configure(2) do |config|
