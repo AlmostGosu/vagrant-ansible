@@ -50,7 +50,6 @@ case $(hostname -s) in
    yum -y install epel-release
    yum -y install ansible
    useradd ansible ;;
-
   *) echo no ansible for splunk ;;
 esac
 SCRIPT
@@ -76,22 +75,13 @@ Vagrant.configure(2) do |config|
 
       config.vm.provision "shell", inline: $authScript
 
+# ---- Ansible share ----
+      
+      config.vm.synced_folder "/Users/cgarrett/Documents/Dev/splunk-ansible" , "/vagrant/ansible", type: "rsync",
+
 # ---- Install Ansible on host ----
 
       config.vm.provision "shell", inline: $ansibleInstallScript
-
-
-
-
-# ---- Ansible server configuration ----
-      if name=="ansible"
-        config.vm.synced_folder "/Users/cgarrett/Documents/Dev/splunk-ansible" , "/vagrant/ansible", type: "rsync",
-        rsync__exclude: ".git/"
-        #config.vm.provision "shell",
-        #inline: "yum -y install epel-release"
-        #config.vm.provision "shell",
-        #inline: "yum -y install ansible"
-      end
 
     end
     
