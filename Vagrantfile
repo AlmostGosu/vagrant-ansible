@@ -45,7 +45,12 @@ SCRIPT
 
 $ansibleInstallScript = <<SCRIPT
 case $(hostname -s) in
-  ansible*) yum -y install epel-release && yum -y install ansible ;;
+
+  ansible*)
+   yum -y install epel-release
+   yum -y install ansible
+   useradd ansible ;;
+
   *) echo no ansible for splunk ;;
 esac
 SCRIPT
